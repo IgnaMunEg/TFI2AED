@@ -5,6 +5,8 @@
 
 FILE*Turnos;
 FILE*mascotas;
+FILE*veterinario;
+FILE*usuario;
 
 struct FechaNacimiento{
 	int dd,mm,aa;	
@@ -27,14 +29,27 @@ struct Turnoss{
 	char detalle[380];
 }tur;
 
-int z=0,j=0,i=0,opp=0,op1=0,op2=0,op3=0,band=0,validar=0,encontrado=0;
-char op;
+struct Veterinario{
+	char Contras[35],NombreApe[60],Telefono[25]; 
+	int Matricula,Dni;	
+}vet;
+
+struct Usuario{
+	char usuario[10],contr[10],nombreYape[60];
+}user;
+
+
+int z=0,j=0,i=0,opp=0,op1=0,op2=0,op3=0,band=0,validar=0,encontrado=0,val=0;
+char op,oppp;
 
 void RegistrarEvolucionMascota(FILE*Turnos);
 void VisualizarTurnos(FILE*Turnos);
 void VerListaMascotas(FILE*mascotas);
 void RegistrarTurnos(FILE*Turnos);  
 void RegistrarMascotas(FILE*mascotas);
+bool ValidarVeterinario(char cad[]);
+void RegistrarVeterinarios(FILE*veterinario);
+void RegistrarUsuario(FILE*usuario);
 
 void MenuGeneral();
 void MenuConsultorio();
@@ -51,26 +66,52 @@ int main(){
 					MenuConsultorio();
 					switch(op3){
 						case 1:{
-							system("cls");
-							_flushall();
-							printf("\n Digite su numero de matricula: ");gets(matricula);
-							_flushall();
-							printf("\n Digite su password: ");gets(password);
-							validar=0;
-							if(strcmp(matricula,"123")==0){
-								if(strcmp(password,"Agus")==0){
-									validar=1;
-								}
-							}
-							if(validar==1){
+							if(validar==0){
 								system("cls");
-								printf("\n Sesion iniciada correctamente");
-								getch();
+								char pass[20];
+								int mat=0,salir=0;
+								do{
+									system("cls");
+									printf("\n Digite la matricula: ");scanf("%d",&mat);
+									_flushall();
+									printf("\n Digite su contrase%ca: ",164);gets(pass);
+									validar=0;
+									rewind(veterinario);
+									veterinario=fopen("Veterinarios.dat","r+b");
+									fread(&vet,sizeof(Veterinario),1,veterinario);
+									while(!feof(veterinario)){
+										if(vet.Matricula==mat){
+											if(strcmp(vet.Contras,pass)==0){
+												system("cls");
+												printf("\n Sesion iniciada correctamente\n\n");
+												system("pause");
+												validar=1;
+											}
+										}
+										fread(&vet,sizeof(Veterinario),1,veterinario);	
+									}
+									fclose(veterinario);
+									if(validar==0){
+										system("cls");
+										printf("\n Error datos erroneos... Pruebe de nuevo");
+										getch();
+										system("cls");
+										_flushall();
+										printf("\n Decea volver a intentar(s/n)(S/N): ");scanf("%c",&oppp);
+										if(oppp=='s'||oppp=='S'){
+											salir=0;
+										}else if(oppp=='n'||oppp=='N'){
+											salir=1;			
+										}	
+									}else if(validar==1){
+										salir=1;
+									}
+								}while(salir==0);
 							}else{
 								system("cls");
-								printf("\n Error en la autenticacion... Por favor intente nuevamente");
+								printf("\n Error ya tiene una sesion iniciada");
 								getch();
-							}						
+							}									
 						break;}
 						case 2:{
 							if(validar==1){
@@ -91,8 +132,16 @@ int main(){
 							}
 						break;}
 						case 4:{
-							printf("\n Finalizado");
-							getch();
+							if(validar==1){			
+								system("cls");
+								printf("\n Finalizado\n\n");
+								system("pause");
+								validar=0;
+							}else{
+								system("cls");
+								printf("\n Error usted no a iniciado sesion aun\n\n");
+								system("pause");
+							}	
 						break;}
 					}
 				}while(op3!=4);
@@ -102,21 +151,90 @@ int main(){
 					MenuAsistente();
 					switch(op2){
 						case 1:{
-							
+							if(val==0){
+								system("cls");
+								char pass[20],us[20],nom[60];
+								int sal=0;
+								do{
+									system("cls");
+									_flushall();
+									printf("\n Digite el usuario: ");gets(us);
+									_flushall();
+									printf("\n Digite su contrase%ca: ",164);gets(pass);
+									_flushall();
+									printf("\n Digite el nombre y apellido: ");gets(nom);
+									val=0;
+									rewind(usuario);
+									usuario=fopen("Usuarios.dat","r+b");
+									fread(&user,sizeof(Usuario),1,usuario);
+									while(!feof(usuario)){
+										if(strcmp(user.contr,pass)==0){
+											if(strcmp(user.usuario,us)==0){
+												if(strcmp(user.nombreYape,nom)==0){
+													system("cls");
+													printf("\n Sesion iniciada correctamente\n\n");
+													system("pause");
+													val=1;
+												}
+											}
+										}
+										fread(&user,sizeof(Usuario),1,usuario);
+									}
+									fclose(usuario);
+									if(val==0){
+										system("cls");
+										printf("\n Error datos erroneos... Pruebe de nuevo");
+										getch();
+										system("cls");
+										_flushall();
+										printf("\n Decea volver a intentar(s/n)(S/N): ");scanf("%c",&oppp);
+										if(oppp=='s'||oppp=='S'){
+											sal=0;
+										}else if(oppp=='n'||oppp=='N'){
+											sal=1;			
+										}	
+									}else if(val==1){
+										sal=1;
+									}
+								}while(sal==0);
+							}else{
+								system("cls");
+								printf("\n Error ya tiene una sesion iniciada");
+								getch();
+							}
 						break;}	
 						case 2:{
-							RegistrarMascotas(mascotas);
+							if(val==1){
+								RegistrarMascotas(mascotas);
+							}else{
+								system("cls");
+								printf("\n Error aun no se a iniciado sesion");
+								getch();
+							}
 						break;}	
 						case 3:{
-							RegistrarTurnos(Turnos);
-							VisualizarTurnos(Turnos);
+							if(val==1){
+								RegistrarTurnos(Turnos);
+							}else{
+								system("cls");
+								printf("\n Error aun no se a iniciado sesion");
+								getch();
+							}
 						break;}	
 						case 4:{
 							
 						break;}	
 						case 5:{
-							printf("\n Finalizado");
-							getch();
+							if(val==1){			
+								system("cls");
+								printf("\n Finalizado\n\n");
+								system("pause");
+								val=0;
+							}else{
+								system("cls");
+								printf("\n Error usted no a iniciado sesion aun\n\n");
+								system("pause");
+							}	
 						break;}	
 					}
 				}while(op2!=5);
@@ -126,10 +244,10 @@ int main(){
 					MenuAdministracion();
 					switch(op1){
 						case 1:{
-							
+							RegistrarVeterinarios(veterinario);
 						break;}	
 						case 2:{
-							
+							RegistrarUsuario(usuario);
 						break;}	
 						case 3:{
 							
@@ -151,6 +269,79 @@ int main(){
 		}
 	}while(opp!=4);
 	getch();
+}
+bool ValidarVeterinario(char cad[]){
+	//Aqui deben colocar las otras validaciones que se piden
+	int ban=0;
+	if(strlen(cad)>=6&&strlen(cad)<=32){
+		ban=1;
+	}
+	if(ban==1){
+		return true;	
+	}else if(ban==0){
+		return false;
+	}
+}
+void RegistrarUsuario(FILE*usuario){
+	int lista=0;
+	usuario=fopen("Usuarios.dat","a+b");
+	do{
+		system("cls");
+		_flushall();
+		printf("\n Digite el usuario : ");gets(user.usuario);
+		_flushall();
+		printf("\n Digite la contrase%ca : ",164);gets(user.contr);
+		_flushall();
+		printf("\n Digite el nombre y apellido: ");gets(user.nombreYape);
+		fwrite(&user,sizeof(Usuario),1,usuario);
+		_flushall();
+		printf("\n Decea registrar otro usuario(s/n)(S/N): ");scanf("%c",&opp);
+		if(opp=='s'||opp=='S'){
+			lista=0;
+		}else if(opp=='n'||opp=='N'){
+			lista=1;			
+		}
+	}while(lista==0);
+	fclose(usuario);
+}
+void RegistrarVeterinarios(FILE*veterinario){
+	char cadena[60];
+	int listo=0;
+	veterinario=fopen("Veterinarios.dat","a+b");
+	do{
+		system("cls");
+		_flushall();
+		printf("\n Digite el nombre y apellido: ");gets(vet.NombreApe);
+		_flushall();
+		printf("\n Digite el telefono : ");gets(vet.Telefono);
+		_flushall();
+		printf("\n Digite dni: ");scanf("%d",&vet.Dni);
+		_flushall();
+		printf("\n Digite la matricula: ");scanf("%d",&vet.Matricula);
+		do{
+			_flushall();
+			printf("\n Digite la contrase%ca: ",164);gets(cadena);
+			if(!ValidarVeterinario(cadena)){
+				system("cls");
+				printf("\n Error en el password solo debe contener 6 a 32 digitos");
+			}
+		}while(!ValidarVeterinario(cadena));
+		if(ValidarVeterinario(cadena)){
+			system("cls");
+			printf("\n Veterinario registrado correctamente\n");
+			system("pause");
+			strcpy(vet.Contras,cadena);
+		}
+		fwrite(&vet,sizeof(Veterinario),1,veterinario);
+		_flushall();
+		printf("\n Decea registrar otro veterinario(s/n)(S/N): ");scanf("%c",&oppp);
+		if(oppp=='s'||oppp=='S'){
+			listo=0;
+		}else if(oppp=='n'||oppp=='N'){
+			listo=1;			
+		}
+	}while(listo==0);
+	fclose(veterinario);
 }
 void RegistrarEvolucionMascota(FILE*Turnos){
 	int encontrado=0,j=0;
@@ -222,7 +413,7 @@ void RegistrarMascotas(FILE*mascotas){
 		printf("\n Digite el peso: ");scanf("%f",&mascot.Peso);	
 		fwrite(&mascot,sizeof(Mascota),1,mascotas);
 		_flushall();
-		printf("\n Desea registrar mas mascotas(s/n)(S/N): ");scanf("%c",&op);
+		printf("\n Decea registrar mas mascotas(s/n)(S/N): ");scanf("%c",&op);
 		if(op=='s'||op=='S'){
 			band=0;
 			z++;
@@ -236,7 +427,7 @@ void VisualizarTurnos(FILE*Turnos){
 	int encontrado=0,j=0;
 	char busN[100];
 	_flushall();
-	printf("\n Digite el nombre y apellido que desea buscar: ");gets(busN);
+	printf("\n Digite el nombre y apellido que decea buscar: ");gets(busN);
 	rewind(Turnos);
 	rewind(mascotas);
 	Turnos=fopen("Turnos.dat","r+b");
@@ -291,7 +482,7 @@ void MenuConsultorio(){
 	printf("   Menu consultorio"); 
  	printf("\n 1 - Iniciar Sesion  ");               
 	printf("\n 2 - Visualizar Lista de Espera de Turnos (informe)");              
-	printf("\n 3 - Registrar Evolución de la Mascota   ");
+	printf("\n 3 - Registrar EvoluciÃ³n de la Mascota   ");
  	printf("\n 4 - Cerrar la aplicacion");
  	printf("\n\n Ingrese una opcion: ");scanf("%d",&op3);
 }
